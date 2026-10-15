@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>무역 레벨업! 수출입관리 마스터 챌린지</title>
+  <meta name="description" content="고등학교 3학년 수출입관리 교과 학습을 위한 40초 타임어택 5지선다 퀴즈 게임 웹앱입니다.">
+  
+  <!-- 웹 폰트 (Pretendard & Tossface 호환) -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  
+  <!-- 스타일시트 (상대 경로) -->
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- 축하 파티클 캔버스 (만점/완료 시 효과) -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+    
+    <!-- 상단 브랜드 헤더 -->
+    <header class="app-header">
+      <div class="header-badge">
+        <span class="badge-icon">🚢</span>
+        <span class="badge-text">고등학교 3학년 수출입관리 실무</span>
+      </div>
+      <h1 class="app-title">무역 레벨업! 챌린지</h1>
+    </header>
+
+    <!-- [1] 시작 화면 (Start Screen) -->
+    <section id="screen-start" class="screen active">
+      <div class="hero-card">
+        <div class="hero-graphic">
+          <span class="floating-icon icon-ship">🚢</span>
+          <span class="floating-icon icon-plane">✈️</span>
+          <span class="floating-icon icon-container">📦</span>
+          <div class="hero-avatar">🏆</div>
+        </div>
+        <h2 class="hero-title">글로벌 무역 전문가에 도전하세요!</h2>
+        <p class="hero-desc">
+          인코텀즈 2020, 결제, 서류, 통관까지!<br>
+          문제당 <strong>40초</strong> 안에 정답을 맞히고 최고 칭호를 획득해 보세요.
+        </p>
+
+        <!-- 퀴즈 규칙 안내 -->
+        <div class="rule-box">
+          <div class="rule-item">
+            <span class="rule-icon">⏱️</span>
+            <div>
+              <strong>문제당 40초 타임어택</strong>
+              <p>시간이 다 되면 자동으로 다음 문제로 넘어갑니다.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon">🎯</span>
+            <div>
+              <strong>총 10문제 (5지선다)</strong>
+              <p>시험이 끝나면 상세 오답노트와 칭호가 주어집니다.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon">🔄</span>
+            <div>
+              <strong>오답만 다시 풀기 지원</strong>
+              <p>틀린 문제만 다시 풀어 100점 만점에 도전할 수 있습니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 칭호 로드맵 미리보기 -->
+        <div class="ranks-preview">
+          <span class="ranks-title">🎖️ 무역 직급 로드맵</span>
+          <div class="ranks-chips">
+            <span class="rank-chip rank-5">👑 100점 무역 마스터</span>
+            <span class="rank-chip rank-4">💼 80~90점 무역 과장</span>
+            <span class="rank-chip rank-3">📋 60~70점 무역 대리</span>
+            <span class="rank-chip rank-2">🌱 40~50점 신입사원</span>
+            <span class="rank-chip rank-1">🐣 0~30점 무역 인턴</span>
+          </div>
+        </div>
+
+        <!-- 학생 정보 입력 (선택) -->
+        <div class="input-group">
+          <label for="student-name">도전자 이름 / 학번 <span class="optional">(선택)</span></label>
+          <input type="text" id="student-name" placeholder="예: 3학년 2반 홍길동" maxlength="15" autocomplete="off">
+        </div>
+
+        <!-- 시작 버튼 -->
+        <button id="btn-start-quiz" class="btn btn-primary btn-large">
+          <span>도전 시작하기</span>
+          <span class="btn-arrow">🚀</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- [2] 퀴즈 풀이 화면 (Quiz Screen) -->
+    <section id="screen-quiz" class="screen">
+      <!-- 퀴즈 상단 상태 바 -->
+      <div class="quiz-top-bar">
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="quiz-progress-text" class="progress-text">문제 1 / 10</span>
+            <span id="quiz-mode-tag" class="mode-tag">정규 도전</span>
+          </div>
+          <div class="progress-track">
+            <div id="quiz-progress-bar" class="progress-fill" style="width: 10%;"></div>
+          </div>
+        </div>
+
+        <!-- 40초 타이머 -->
+        <div class="timer-container" id="timer-box">
+          <svg class="timer-svg" viewBox="0 0 44 44">
+            <circle class="timer-bg-circle" cx="22" cy="22" r="18"></circle>
+            <circle id="timer-progress-circle" class="timer-bar-circle" cx="22" cy="22" r="18"></circle>
+          </svg>
+          <div class="timer-number-wrap">
+            <span id="timer-seconds">40</span>
+            <span class="timer-unit">초</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 문제 카드 영역 -->
+      <div class="question-card">
+        <div class="question-header">
+          <span id="question-category" class="question-category-tag">인코텀즈 2020</span>
+          <span class="question-score-tag">배점 10점</span>
+        </div>
+        
+        <h2 id="question-text" class="question-title">
+          문제가 이곳에 표시됩니다.
+        </h2>
+
+        <!-- 5지선다 보기 목록 -->
+        <div id="options-container" class="options-grid">
+          <!-- JS에서 동적으로 생성됩니다 -->
+        </div>
+      </div>
+
+      <!-- 퀴즈 하단 컨트롤 바 -->
+      <div class="quiz-bottom-bar">
+        <div class="selection-status" id="selection-status-text">
+          보기를 1개 선택해 주세요
+        </div>
+        <button id="btn-submit-answer" class="btn btn-primary" disabled>
+          <span>다음 문제로</span>
+          <span class="btn-arrow">➔</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- [3] 결과 화면 (Result Screen) -->
+    <section id="screen-result" class="screen">
+      <div class="result-card">
+        
+        <div class="result-celebration">
+          <div id="result-trophy" class="trophy-icon">🏆</div>
+          <p id="result-user-greeting" class="user-greeting">도전자님의 최종 결과</p>
+          <h2 id="result-rank-title" class="rank-name">전설의 글로벌 무역 마스터</h2>
+          <p id="result-rank-desc" class="rank-description">
+            인코텀즈부터 통관 실무까지 완벽하게 마스터한 무역의 신!
+          </p>
+        </div>
+
+        <!-- 점수 스코어보드 -->
+        <div class="score-board">
+          <div class="score-main">
+            <span class="score-label">최종 점수</span>
+            <div class="score-value-row">
+              <span id="result-final-score" class="score-number">100</span>
+              <span class="score-total">/ 100점</span>
+            </div>
+          </div>
+
+          <div class="score-stats-grid">
+            <div class="stat-box correct">
+              <span class="stat-label">정답</span>
+              <span id="stat-correct-count" class="stat-num">10</span>
+            </div>
+            <div class="stat-box wrong">
+              <span class="stat-label">오답</span>
+              <span id="stat-wrong-count" class="stat-num">0</span>
+            </div>
+            <div class="stat-box timeout">
+              <span class="stat-label">시간초과</span>
+              <span id="stat-timeout-count" class="stat-num">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 액션 버튼들 -->
+        <div class="result-actions">
+          <button id="btn-retry-wrong" class="btn btn-warning btn-action">
+            <span class="btn-icon">🔄</span>
+            <span>오답만 모아서 다시 풀기 (<strong id="wrong-count-badge">0</strong>)</span>
+          </button>
+          <button id="btn-restart-all" class="btn btn-secondary btn-action">
+            <span class="btn-icon">🚀</span>
+            <span>전체 10문제 처음부터 재도전</span>
+          </button>
+        </div>
+
+        <!-- 오답노트 및 해설 토글 섹션 -->
+        <div class="review-section">
+          <div class="review-header">
+            <div class="review-title-group">
+              <span class="review-icon">📝</span>
+              <h3>문제별 채점표 & 꼼꼼 오답노트</h3>
+            </div>
+            <button id="btn-toggle-review" class="btn btn-text">
+              <span id="toggle-review-text">해설 접기</span>
+              <span id="toggle-review-arrow">▲</span>
+            </button>
+          </div>
+          
+          <div id="review-list-container" class="review-list">
+            <!-- JS로 동적 생성 -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 하단 푸터 -->
+    <footer class="app-footer">
+      <p>💡 고등학교 3학년 수출입관리 수업용 웹앱 | 별도 로그인이나 개인정보 수집 없이 브라우저에서 안전하게 작동합니다.</p>
+    </footer>
+
+  </div>
+
+  <!-- 스크립트 (상대 경로) -->
+  <script src="./app.js"></script>
+</body>
+</html>
